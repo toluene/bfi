@@ -1,0 +1,17 @@
+name:                bfi
+version:             0.1
+synopsis:            Brainfuck REPL
+description:         Interprets Brainfuck in REPL
+license:             GPL-3
+license-file:        LICENSE
+author:              A.
+maintainer:          sh.kabane@gmail.com
+category:            Interpreter
+build-type:          Simple
+cabal-version:       >=1.8
+
+executable bfi
+   main-is:       Main.hs
+   other-modules:      Brainfuck
+  build-depends:       base ==4.6.*, readline ==1.0.*
+  
