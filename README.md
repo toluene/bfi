@@ -27,7 +27,7 @@ Options inside the REPL
 
 `:c`	Print column
 
-`:i`	Clear column
+`:i`	Clear column and tape
 
 `:h`	Display help
 
