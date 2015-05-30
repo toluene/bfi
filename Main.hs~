@@ -2,7 +2,6 @@ import Brainfuck
 import System.Console.Readline
 import System.Console.GetOpt
 import System.Environment (getArgs)
-import System.IO
 import Data.List (group)
 import Control.Monad (void)
 
@@ -58,7 +57,7 @@ repl old@(tape, acc) = do
                 putStrLn $ "Tape at "
                          ++ show acc ++ " is: " ++ show (showTape old)
                 repl old
-        Just ":c" -> putStrLn ("Column " ++ show acc) >> repl old
+        Just ":c" -> (putStrLn $ "Column " ++ show acc) >> repl old
         Just ":i" -> repl (startTape, 0)
         Just ":h" -> putStrLn commands >> repl old
         Just ":help" -> putStrLn commands >> repl old
@@ -71,7 +70,6 @@ repl old@(tape, acc) = do
 
 main :: IO ()
 main = do
-    hSetBuffering stdout NoBuffering
     argv <- getArgs
     case getOpt Permute flags argv of
         ([], x : _, []) -> do
