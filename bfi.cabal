@@ -11,7 +11,10 @@ build-type:          Simple
 cabal-version:       >=1.8
 
 executable bfi
-   main-is:       Main.hs
-   other-modules:      Brainfuck
-  build-depends:       base ==4.6.*, readline ==1.0.*
-  
+    main-is:       Main.hs
+    other-modules:      Brainfuck
+    build-depends:       base, readline
+    ghc-options:
+        -O3
+        -Wall
+
