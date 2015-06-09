@@ -69,6 +69,10 @@ repl old@(tape, acc) = do
                 putStr "\n"
                 repl next
 
+getTape :: [String] -> Tape
+getTape [] = startTape
+getTape (x : _) = readTape $ read x
+
 main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
@@ -78,33 +82,25 @@ main = do
             file <- readFile x
             void $ interpret file startTape 0
         ([], [], []) -> error $ usageInfo header flags
-        ("i" : [], [], []) -> do
-            putStr enter
-            putStr $ "Entering REPL with tape: "
-                   ++ show (showTape (startTape, 0))
-            putChar '\n'
-            repl (startTape, 0)
         (args, [], []) ->
             if "i" `elem` args then
-                let tape = readTape $ read $ concat $ filter (/= "i") args
+                let tape = getTape $ filter (/= "i") args
                 in do
                     putStr enter
                     putStr $ "Entering REPL with tape: "
-                           ++ show (showTape (tape, 0))
+                           ++ show (showTape (tape, 500))
                     putChar '\n'
                     repl (tape, 0)
-            else error $ usageInfo header flags
+                else error $ usageInfo header flags
         (args, x : _, []) ->
-            let tape = readTape $ read $ concat $ filter (/= "i") args in
+            let tape = getTape $ filter (/= "i") args
+            in do
+                file <- readFile x
                 if "i" `elem` args then do
-                    file <- readFile x
-                    a <- interpret file tape 0
+                    (tape', acc) <- interpret file tape 0
+                    putStr $ "Entering REPL with tape: "
+                           ++ show (showTape (tape', 500 + acc))
                     putChar '\n'
-                    putStr enter
-                    putStr $ "Entering REPL with tape: " ++ show (showTape a)
-                    putChar '\n'
-                    repl a
-                else do
-                    file <- readFile x
-                    void $ interpret file tape 0
+                    repl (tape', acc)
+                    else void $ interpret file tape 0
         (_, _, err) -> error $ concat err ++ usageInfo header flags
