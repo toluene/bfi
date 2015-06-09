@@ -1,4 +1,5 @@
 import Brainfuck
+
 import System.Console.Readline
 import System.Console.GetOpt
 import System.Environment (getArgs)
@@ -35,6 +36,10 @@ init' :: [a] -> [a]
 init' [] = []
 init' x = init x
 
+readFile' :: [String] -> IO String
+readFile' [] = return ""
+readFile' (x : _) = readFile x
+
 
 readTape :: Tape -> Tape
 readTape (left, right) = (right ++ repeat 0, reverse left)
@@ -44,6 +49,10 @@ showTape ((t : a, pe), acc) = (reverse pe
                               , t
                               , (concat . init' . group . take acc) a)
 showTape _ = error "Can't show tape"
+
+getTape :: [String] -> Tape
+getTape [] = startTape
+getTape (x : _) = readTape $ read x
 
 
 repl :: (Tape, Int) -> IO ()
@@ -69,35 +78,19 @@ repl old@(tape, acc) = do
                 putStr "\n"
                 repl next
 
-getTape :: [String] -> Tape
-getTape [] = startTape
-getTape (x : _) = readTape $ read x
-
 main :: IO ()
 main = do
     hSetBuffering stdout NoBuffering
     argv <- getArgs
     case getOpt Permute flags argv of
-        ([], x : _, []) -> do
-            file <- readFile x
-            void $ interpret file startTape 0
         ([], [], []) -> error $ usageInfo header flags
-        (args, [], []) ->
-            if "i" `elem` args then
-                let tape = getTape $ filter (/= "i") args
-                in do
-                    putStr enter
-                    putStr $ "Entering REPL with tape: "
-                           ++ show (showTape (tape, 500))
-                    putChar '\n'
-                    repl (tape, 0)
-                else error $ usageInfo header flags
-        (args, x : _, []) ->
+        (args, x, []) ->
             let tape = getTape $ filter (/= "i") args
             in do
-                file <- readFile x
+                file <- readFile' x
                 if "i" `elem` args then do
                     (tape', acc) <- interpret file tape 0
+                    putStr enter
                     putStr $ "Entering REPL with tape: "
                            ++ show (showTape (tape', 500 + acc))
                     putChar '\n'
